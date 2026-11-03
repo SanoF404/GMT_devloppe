@@ -97,6 +97,15 @@ public class QuoteRequestService {
         }
 
         // Chercher le véhicule
+        Vehicle requested = vehicleRepository
+                .findById(dto.getVehiculeId())
+                .orElseThrow(() ->
+                        new ResponseStatusException(HttpStatus.NOT_FOUND, "Le véhicule sélectionné n'existe plus. Veuillez en choisir un autre."));
+        // Verrouille tout le modèle avant de chercher une voiture libre : la voiture de remplacement
+        // éventuelle ne peut alors pas être affectée à deux demandes en même temps.
+        vehicleRepository.findModelGroupForUpdate(
+                requested.getMarque() == null ? "" : requested.getMarque().trim(),
+                requested.getModele() == null ? "" : requested.getModele().trim());
         Vehicle vehicle = vehicleRepository
                 .findByIdForUpdate(dto.getVehiculeId())
                 .orElseThrow(() ->

@@ -38,4 +38,13 @@ public interface VehicleRepository extends JpaRepository<Vehicle, Long> {
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT vehicle FROM Vehicle vehicle WHERE vehicle.id = :id")
     Optional<Vehicle> findByIdForUpdate(@Param("id") Long id);
+
+    /**
+     * Verrouille toutes les voitures d'un même modèle, dans l'ordre des identifiants.
+     * Un ordre fixe évite les interblocages quand deux demandes se disputent le même modèle.
+     */
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT vehicle FROM Vehicle vehicle WHERE LOWER(vehicle.marque) = LOWER(:marque) "
+            + "AND LOWER(vehicle.modele) = LOWER(:modele) ORDER BY vehicle.id ASC")
+    List<Vehicle> findModelGroupForUpdate(@Param("marque") String marque, @Param("modele") String modele);
 }

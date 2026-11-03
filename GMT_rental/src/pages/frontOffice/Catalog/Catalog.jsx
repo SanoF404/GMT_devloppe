@@ -66,7 +66,6 @@ function Catalog() {
     fuel: vehicle.carburant === "ELECTRIQUE" ? "Électrique" : vehicle.carburant ? vehicle.carburant[0] + vehicle.carburant.slice(1).toLowerCase() : "—",
     priceDT: Number(vehicle.prixParJour),
     image: resolveVehicleImage(vehicle.image),
-    availability: "Actif",
   })), [apiVehicles]);
   /* =========================
      ETATS
@@ -82,7 +81,6 @@ function Catalog() {
 
   const [fuel, setFuel] = useState("Tous");
 
-  const [availability, setAvailability] = useState("Toutes");
 
   /* =========================
      CATEGORIES
@@ -125,17 +123,12 @@ function Catalog() {
         fuel === "Tous" ||
         vehicle.fuel === fuel;
 
-      const matchesAvailability =
-        availability === "Toutes" ||
-        vehicle.availability === availability;
-
       return (
         matchesSearch &&
         matchesCategory &&
         matchesBrand &&
         matchesTransmission &&
-        matchesFuel &&
-        matchesAvailability
+        matchesFuel
       );
 
     });
@@ -146,7 +139,6 @@ function Catalog() {
     brand,
     transmission,
     fuel,
-    availability,
     vehicles
   ]);
 
@@ -162,7 +154,6 @@ function Catalog() {
     setBrand("Toutes");
     setTransmission("Toutes");
     setFuel("Tous");
-    setAvailability("Toutes");
 
   };
 
@@ -343,21 +334,6 @@ function Catalog() {
         </select>
 
 
-        <select
-          value={availability}
-          onChange={(e) => setAvailability(e.target.value)}
-        >
-          <option value="Toutes">
-            Toutes disponibilités
-          </option>
-
-          <option value="Actif">
-            Actif
-          </option>
-
-        </select>
-
-
         <button
           className="reset-filters"
           onClick={resetFilters}
@@ -418,17 +394,6 @@ function Catalog() {
 
                   <span className="card-category">
                     {vehicle.category}
-                  </span>
-
-
-                  <span
-                    className={
-                      vehicle.availability === "Actif"
-                        ? "card-availability available"
-                        : "card-availability reservation"
-                    }
-                  >
-                    {vehicle.availability}
                   </span>
 
 

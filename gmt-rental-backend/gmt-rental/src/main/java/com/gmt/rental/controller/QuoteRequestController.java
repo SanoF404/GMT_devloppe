@@ -26,6 +26,8 @@ public class QuoteRequestController {
     private final VehicleAvailabilityService vehicleAvailabilityService;
     // Au plus 20 demandes de devis par adresse IP et par tranche de 10 minutes.
     private final RateLimiter quoteLimiter = new RateLimiter(20, Duration.ofMinutes(10));
+    // Au plus 5 demandes de devis par adresse e-mail et par heure, pour éviter le spam depuis une même adresse.
+    private final RateLimiter quoteEmailLimiter = new RateLimiter(5, Duration.ofHours(1));
 
     public QuoteRequestController(
             QuoteRequestService quoteRequestService,
@@ -51,6 +53,11 @@ public class QuoteRequestController {
         if (!quoteLimiter.tryAcquire(http.getRemoteAddr())) {
             throw new ResponseStatusException(HttpStatus.TOO_MANY_REQUESTS,
                     "Trop de demandes envoyées. Réessayez dans quelques minutes.");
+        }
+        String emailKey = dto == null || dto.getEmail() == null ? "" : dto.getEmail().trim().toLowerCase(java.util.Locale.ROOT);
+        if (!emailKey.isEmpty() && !quoteEmailLimiter.tryAcquire(emailKey)) {
+            throw new ResponseStatusException(HttpStatus.TOO_MANY_REQUESTS,
+                    "Trop de demandes pour cette adresse e-mail. Réessayez dans une heure.");
         }
 
         QuoteRequest savedQuote =
