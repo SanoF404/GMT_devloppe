@@ -91,7 +91,6 @@ class AdminApiIntegrationTests {
                         .content(loginBody))
                 .andExpect(status().isOk())
                 .andReturn();
-        if (!matcher.find()) throw new AssertionError("La réponse de connexion ne contient pas de jeton JWT");
         String auth = "Bearer " + SessionCookies.sessionToken(loginResponse);
 
         String userEmail = "managed-user-" + UUID.randomUUID() + "@gmt.test";
@@ -346,7 +345,6 @@ class AdminApiIntegrationTests {
                 """.formatted(adminEmail);
         MvcResult loginResponse = mockMvc.perform(post("/api/auth/login").contentType(MediaType.APPLICATION_JSON).content(loginBody))
                 .andExpect(status().isOk()).andReturn();
-        if (!matcher.find()) throw new AssertionError("La réponse de connexion ne contient pas de jeton JWT");
 
         String token = SessionCookies.sessionToken(loginResponse);
         Long acceptedQuoteId = savedQuote.getId();
@@ -487,7 +485,6 @@ class AdminApiIntegrationTests {
                                 """.formatted(adminEmail)))
                 .andExpect(status().isOk())
                 .andReturn();
-        if (!matcher.find()) throw new AssertionError("La réponse de connexion ne contient pas de jeton JWT");
         String auth = "Bearer " + SessionCookies.sessionToken(loginResponse);
 
         String historyUrl = "/api/admin/users/{userId}/rentals";
