@@ -1,0 +1,11 @@
+Déposez ici les photos des voitures (jpg, png ou webp), avec ces noms de fichier :
+
+  mg-zs.jpg
+  honda-city.jpg
+  peugeot-2008.jpg
+  kia-stonic.jpg
+  kia-picanto.jpg
+
+Le nom (sans l'extension) doit correspondre à la colonne « image » du véhicule
+(voir backend/db/fleet-seed.sql ou le champ « Image » dans l'espace admin).
+Tant qu'une photo manque, le catalogue affiche « Photo indisponible ».

@@ -1,16 +1,25 @@
-# React + Vite
+# GMT Rent a Car — site public et espace admin
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Application React (Vite) qui consomme l'API Spring Boot du dossier `gmt-rental-backend`.
 
-Currently, two official plugins are available:
+## Démarrage
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+```powershell
+npm install
+npm run dev      # http://localhost:5174
+npm run build
+npm run lint
+```
 
-## React Compiler
+L'adresse de l'API se règle avec `VITE_API_URL` (par défaut `http://localhost:8081/api`).
+En production, créez un fichier `.env.production` :
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+```
+VITE_API_URL=https://api.votre-domaine.tn/api
+```
 
-## Expanding the ESLint configuration
+## À renseigner avant la mise en ligne
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+- `src/config/site.js` : adresse, téléphone, e-mail, horaires, réseaux et conditions de location.
+  Un champ vide est simplement masqué sur le site.
+- `src/assets/cars/` : photos des voitures (voir `LISEZ-MOI.txt`).

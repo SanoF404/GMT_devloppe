@@ -47,6 +47,9 @@ public class VehicleAvailabilityService {
         }
 
         List<UnavailablePeriod> conflicts = findConflictingPeriods(vehicle, dateDebut, dateFin, null);
+        if (!conflicts.isEmpty() && findFreeUnitOfSameModel(vehicle, dateDebut, dateFin) != null) {
+            conflicts = List.of();
+        }
         return new VehicleAvailabilityResponse(
                 conflicts.isEmpty(),
                 conflicts,
@@ -85,6 +88,34 @@ public class VehicleAvailabilityService {
         ensureAvailable(vehicle, dateDebut, dateFin, null);
     }
 
+    /**
+     * Le client choisit un modèle, pas une plaque : si la voiture demandée est prise sur ces dates,
+     * on affecte une autre voiture active du même modèle qui est libre. Sans voiture libre, le conflit
+     * de la voiture demandée est signalé.
+     */
+    public Vehicle resolveAvailableUnit(Vehicle requested, LocalDate dateDebut, LocalDate dateFin) {
+        validatePeriod(dateDebut, dateFin);
+        List<UnavailablePeriod> conflicts = findConflictingPeriods(requested, dateDebut, dateFin, null);
+        if (conflicts.isEmpty()) return requested;
+        Vehicle alternative = findFreeUnitOfSameModel(requested, dateDebut, dateFin);
+        if (alternative != null) return alternative;
+        throw new AvailabilityConflictException(formatConflictMessage(conflicts), conflicts);
+    }
+
+    private Vehicle findFreeUnitOfSameModel(Vehicle vehicle, LocalDate dateDebut, LocalDate dateFin) {
+        if (vehicle.getMarque() == null || vehicle.getModele() == null) return null;
+        return vehicles
+                .findByMarqueIgnoreCaseAndModeleIgnoreCaseAndStatutIgnoreCaseOrderByIdAsc(
+                        vehicle.getMarque().trim(), vehicle.getModele().trim(), "ACTIF")
+                .stream()
+                .filter(candidate -> !candidate.getId().equals(vehicle.getId()))
+                .filter(candidate -> candidate.getCategorie() == null
+                        || !Boolean.FALSE.equals(candidate.getCategorie().getActif()))
+                .filter(candidate -> findConflictingPeriods(candidate, dateDebut, dateFin, null).isEmpty())
+                .findFirst()
+                .orElse(null);
+    }
+
     public void ensureAvailable(Vehicle vehicle, LocalDate dateDebut, LocalDate dateFin, Long excludedQuoteId) {
         validatePeriod(dateDebut, dateFin);
         List<UnavailablePeriod> conflicts = findConflictingPeriods(vehicle, dateDebut, dateFin, excludedQuoteId);
@@ -114,11 +145,11 @@ public class VehicleAvailabilityService {
 
     private String formatConflictMessage(List<UnavailablePeriod> conflicts) {
         String periods = conflicts.stream()
-                .map(period -> DISPLAY_DATE.format(period.dateDebut()) + " to "
+                .map(period -> DISPLAY_DATE.format(period.dateDebut()) + " au "
                         + DISPLAY_DATE.format(period.dateFin()))
                 .reduce((first, second) -> first + ", " + second)
                 .orElse("");
-        return "This car is already rented or reserved from " + periods
-                + ". Please choose different dates or another vehicle.";
+        return "Ce véhicule est déjà loué ou réservé du " + periods
+                + ". Veuillez choisir d'autres dates ou un autre véhicule.";
     }
 }

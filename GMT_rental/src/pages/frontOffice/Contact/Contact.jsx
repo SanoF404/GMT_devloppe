@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 
 import {
   MapPin,
@@ -7,11 +8,10 @@ import {
   Clock,
   Send,
   MessageCircle,
-  Languages,
-  LoaderCircle,
   CheckCircle,
 } from "lucide-react";
 
+import site, { emailHref, hasContact, phoneHref, whatsappHref } from "../../../config/site";
 import "./Contact.css";
 
 function Contact() {
@@ -24,7 +24,6 @@ function Contact() {
   });
 
   const [errors, setErrors] = useState({});
-  const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
 
   const handleChange = (event) => {
@@ -67,28 +66,31 @@ function Contact() {
     return Object.keys(newErrors).length === 0;
   };
 
+  const canSend = Boolean(site.email || site.whatsapp);
+
   const handleSubmit = (event) => {
     event.preventDefault();
 
-    if (!validateForm()) {
+    if (!validateForm() || !canSend) {
       return;
     }
 
-    setLoading(true);
+    const lines = [
+      `Nom : ${formData.nom.trim()}`,
+      `Email : ${formData.email.trim()}`,
+      formData.telephone.trim() ? `Téléphone : ${formData.telephone.trim()}` : "",
+      "",
+      formData.message.trim(),
+    ].filter((line, index) => line || index === 3);
+    const text = lines.join("\n");
 
-    /*
-      Pour le moment :
-      simulation de l'envoi.
-
-      Plus tard :
-      React → Spring Boot → PostgreSQL
-      + notification email administrateur
-    */
-
-    setTimeout(() => {
-      setLoading(false);
-      setSuccess(true);
-    }, 1500);
+    if (site.email) {
+      const subject = `${formData.sujet} - ${site.name}`;
+      window.location.href = `${emailHref}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(text)}`;
+    } else {
+      window.open(`${whatsappHref}?text=${encodeURIComponent(`${formData.sujet}\n${text}`)}`, "_blank", "noopener");
+    }
+    setSuccess(true);
   };
 
   const resetForm = () => {
@@ -135,102 +137,58 @@ function Contact() {
           CONTENU
       ========================= */}
 
-      <section className="contact-grid">
+      <section className="contact-grid" style={hasContact ? undefined : { gridTemplateColumns: "minmax(0, 720px)", justifyContent: "center" }}>
 
         {/* =========================
             COLONNE GAUCHE
         ========================= */}
 
-        <div className="contact-info">
+        {hasContact && <div className="contact-info">
 
-          <ContactInfoCard
-            icon={<MapPin size={27} />}
-            label="ADRESSE"
-            value="Avenue Habib Bourguiba, Tunis, Tunisie"
-            description="Notre équipe vous accueille au centre de Tunis."
-          />
+          {site.address && (
+            <ContactInfoCard icon={<MapPin size={27} />} label="ADRESSE" value={site.address} />
+          )}
 
-          <ContactInfoCard
-            icon={<Phone size={27} />}
-            label="TÉLÉPHONE"
-            value={
-              <a href="tel:+21671000000">
-                +216 71 000 000
-              </a>
-            }
-            description="Du lundi au vendredi, de 08h à 19h."
-          />
-
-          <ContactInfoCard
-            icon={<Mail size={27} />}
-            label="EMAIL"
-            value={
-              <a href="mailto:contact@gmt.tn">
-                contact@gmt.tn
-              </a>
-            }
-            description="Réponse sous 24h ouvrées."
-          />
-
-          <ContactInfoCard
-            icon={<Clock size={27} />}
-            label="HORAIRES"
-            value="Lun — Ven : 08h — 19h"
-            description="Sam : 09h — 14h · Dimanche : Sur RDV"
-          />
-
-
-          {/* =========================
-              MAP
-          ========================= */}
-
-          <div className="contact-map">
-
-            <iframe
-              title="Localisation GMT à Tunis"
-              src="https://www.openstreetmap.org/export/embed.html?bbox=10.15%2C36.79%2C10.20%2C36.82&layer=mapnik&marker=36.8065%2C10.1815"
-              loading="lazy"
+          {site.phone && (
+            <ContactInfoCard
+              icon={<Phone size={27} />}
+              label="TÉLÉPHONE"
+              value={<a href={phoneHref}>{site.phone}</a>}
             />
+          )}
 
-          </div>
+          {site.whatsapp && (
+            <ContactInfoCard
+              icon={<MessageCircle size={27} />}
+              label="WHATSAPP"
+              value={<a href={whatsappHref} target="_blank" rel="noreferrer">Écrire sur WhatsApp</a>}
+            />
+          )}
 
+          {site.email && (
+            <ContactInfoCard
+              icon={<Mail size={27} />}
+              label="EMAIL"
+              value={<a href={emailHref}>{site.email}</a>}
+            />
+          )}
 
-          {/* =========================
-              SOCIAL
-          ========================= */}
+          {site.hours.length > 0 && (
+            <ContactInfoCard
+              icon={<Clock size={27} />}
+              label="HORAIRES"
+              value={site.hours.map(([days, time]) => `${days} : ${time}`).join(" · ")}
+            />
+          )}
 
-          <div className="contact-socials">
+          {(site.facebook || site.instagram) && (
+            <div className="contact-socials">
+              {site.facebook && <a href={site.facebook} target="_blank" rel="noreferrer">Facebook</a>}
+              {site.instagram && <a href={site.instagram} target="_blank" rel="noreferrer">Instagram</a>}
+            </div>
+          )}
 
-            <a
-              href="https://www.facebook.com/"
-              target="_blank"
-              rel="noreferrer"
-              aria-label="Facebook"
-            >
-              Facebook
-            </a>
-
-            <a
-              href="https://www.instagram.com/"
-              target="_blank"
-              rel="noreferrer"
-              aria-label="Instagram"
-            >
-              Instagram
-            </a>
-
-            <a
-              href="https://www.linkedin.com/"
-              target="_blank"
-              rel="noreferrer"
-              aria-label="LinkedIn"
-            >
-              LinkedIn
-            </a>
-
-          </div>
-
-        </div>
+        </div>}
 
 
         {/* =========================
@@ -363,29 +321,16 @@ function Contact() {
 
               {/* BUTTON */}
 
-              <button
-                type="submit"
-                className="contact-submit"
-                disabled={loading}
-              >
-
-                {loading ? (
-                  <>
-                    <LoaderCircle
-                      size={20}
-                      className="loading-icon"
-                    />
-
-                    Envoi en cours...
-                  </>
-                ) : (
-                  <>
-                    Envoyer le message
-                    <Send size={20} />
-                  </>
-                )}
-
+              <button type="submit" className="contact-submit" disabled={!canSend}>
+                Envoyer le message
+                <Send size={20} />
               </button>
+
+              {!canSend && (
+                <small>
+                  Le formulaire n'est pas encore disponible. Passez par la page <Link to="/devis">Demander un devis</Link>.
+                </small>
+              )}
 
             </form>
 
@@ -402,18 +347,18 @@ function Contact() {
               </div>
 
               <h2>
-                Message envoyé !
+                Votre message est prêt
               </h2>
 
               <p>
-                Nous vous répondrons dans les plus brefs délais.
+                Votre application de messagerie s'est ouverte avec le message. Envoyez-le pour que nous le recevions.
               </p>
 
               <button
                 className="reset-button"
                 onClick={resetForm}
               >
-                Envoyer un autre message
+                Écrire un autre message
               </button>
 
             </div>
@@ -424,29 +369,6 @@ function Contact() {
 
       </section>
 
-
-      {/* =========================
-          RÉASSURANCE
-      ========================= */}
-
-      <section className="contact-reassurance">
-
-        <div className="reassurance-card">
-          <Clock />
-          <span>Réponse sous 24h</span>
-        </div>
-
-        <div className="reassurance-card">
-          <MessageCircle />
-          <span>Conseils personnalisés gratuits</span>
-        </div>
-
-        <div className="reassurance-card">
-          <Languages />
-          <span>Équipe francophone, arabe et anglaise</span>
-        </div>
-
-      </section>
 
     </main>
   );

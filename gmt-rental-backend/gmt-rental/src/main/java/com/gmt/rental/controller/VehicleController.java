@@ -1,6 +1,6 @@
 package com.gmt.rental.controller;
 
-import com.gmt.rental.entity.Vehicle;
+import com.gmt.rental.dto.PublicVehicleResponse;
 import com.gmt.rental.service.VehicleService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -9,7 +9,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/vehicules")
-@CrossOrigin(origins = "http://localhost:5174")
 public class VehicleController {
 
     private final VehicleService vehicleService;
@@ -20,19 +19,21 @@ public class VehicleController {
 
     // GET /api/vehicules
     @GetMapping
-    public List<Vehicle> getAllVehicles(
+    public List<PublicVehicleResponse> getAllVehicles(
             @RequestParam(required = false) String statut,
             @RequestParam(required = false) Long categorieId) {
 
-        return vehicleService.searchPublicVehicles(statut, categorieId);
+        return vehicleService.searchPublicVehicles(statut, categorieId).stream()
+                .map(PublicVehicleResponse::from)
+                .toList();
     }
 
     // GET /api/vehicules/{id}
     @GetMapping("/{id}")
-    public ResponseEntity<Vehicle> getVehicleById(@PathVariable Long id) {
+    public ResponseEntity<PublicVehicleResponse> getVehicleById(@PathVariable Long id) {
 
         return vehicleService.getPublicVehicleById(id)
-                .map(ResponseEntity::ok)
+                .map(vehicle -> ResponseEntity.ok(PublicVehicleResponse.from(vehicle)))
                 .orElse(ResponseEntity.notFound().build());
     }
 }

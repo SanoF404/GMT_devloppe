@@ -1,5 +1,6 @@
 import "./CarCard.css";
 import { NavLink } from "react-router-dom";
+import { Fuel, Settings2, Users } from "lucide-react";
 import useCurrency from "../../../context/useCurrency";
 
 function CarCard({
@@ -11,6 +12,7 @@ function CarCard({
   transmission,
   fuel,
   priceDT,
+  count,
   id
 }) {
   const { currency, getPrice } = useCurrency();
@@ -21,18 +23,20 @@ function CarCard({
     <article className="car-card">
 
       <div className="car-image">
-        {image && <img
+        {image ? <img
           src={image}
           alt={`${brand} ${name}`}
-        />}
+        /> : <div className="car-image-placeholder" role="img" aria-label={`Photo indisponible pour ${brand} ${name}`}>Photo à venir</div>}
 
         <span className="car-category">
           {category}
         </span>
 
-        <span className="car-status">
-          Disponible
-        </span>
+        {count > 1 && (
+          <span className="car-status">
+            {count} véhicules
+          </span>
+        )}
       </div>
 
       <div className="car-content">
@@ -46,17 +50,17 @@ function CarCard({
         <div className="car-specs">
 
           <span>
-            <span className="spec-icon">♙</span>
+            <span className="spec-icon"><Users size={15} aria-hidden="true" /></span>
             {seats}
           </span>
 
           <span>
-            <span className="spec-icon">⚙</span>
+            <span className="spec-icon"><Settings2 size={15} aria-hidden="true" /></span>
             {transmission}
           </span>
 
           <span>
-            <span className="spec-icon">⛽</span>
+            <span className="spec-icon"><Fuel size={15} aria-hidden="true" /></span>
             {fuel}
           </span>
 

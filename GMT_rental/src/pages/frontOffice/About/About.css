@@ -397,16 +397,7 @@
   align-items: center;
   justify-content: center;
 
-  background:
-    linear-gradient(
-      var(--info-bg),
-      var(--info-bg)
-    ),
-    url("../../../assets/images/about/apropos.jpg");
-
-  background-size: cover;
-
-  background-position: center;
+  background: radial-gradient(ellipse at 50% 0%, color-mix(in srgb, var(--accent) 12%, var(--bg-2)) 0%, var(--bg-2) 70%);
 }
 
 .about-cta-content {

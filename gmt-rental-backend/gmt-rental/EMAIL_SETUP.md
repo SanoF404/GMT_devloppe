@@ -24,7 +24,7 @@ Dans le terminal qui lancera Spring Boot, définissez les variables (remplacez l
 $env:RESEND_API_KEY = "re_votre_nouvelle_cle"
 $env:EMAIL_FROM = "Gestion Rental <notifications@votre-domaine-verifie.com>"
 $env:APP_NAME = "Gestion Rental"
-$env:GMT_SUPPORT_EMAIL = "feresteem2@gmail.com"
+$env:GMT_SUPPORT_EMAIL = "support@votre-domaine.tn"
 $env:GMT_JWT_SECRET = "une-cle-aleatoire-d-au-moins-32-octets"
 .\mvnw.cmd '-Dspring-boot.run.profiles=local' spring-boot:run
 ```
@@ -43,7 +43,7 @@ Resend doit confirmer l'acceptation avant que l'interface n'affiche un succès. 
 
 Les demandes de devis déjà validées ne sont pas annulées si l'envoi échoue. Le résultat (PENDING, ACCEPTED ou FAILED), le destinataire et l'identifiant Resend accepté sont suivis dans `email_deliveries`. L'unicité devis/destinataire empêche les envois répétés pour une même demande.
 
-Les formulaires **Aide et assistance** sont enregistrés en base puis notifiés à `GMT_SUPPORT_EMAIL` (par défaut `feresteem2@gmail.com`). Le formulaire indique séparément si la demande a été enregistrée et si Resend a accepté l'e-mail.
+Les formulaires **Aide et assistance** sont enregistrés en base puis notifiés à `GMT_SUPPORT_EMAIL`. Le formulaire indique séparément si la demande a été enregistrée et si Resend a accepté l'e-mail.
 
 ## Sécurité
 

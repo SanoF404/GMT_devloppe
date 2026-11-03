@@ -30,6 +30,9 @@ public class AdminBootstrapInitializer implements ApplicationRunner {
     @Override
     public void run(ApplicationArguments args) {
         if (email.isBlank() || password.isBlank()) return;
+        if (password.length() < 8) {
+            throw new IllegalStateException("GMT_ADMIN_PASSWORD doit contenir au moins 8 caractères.");
+        }
         var existing = users.findByEmail(email.trim());
         if (existing.isPresent()) {
             User currentAdmin = existing.get();

@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import "./CTASection.css";
 
 function CTASection() {
@@ -9,7 +10,7 @@ function CTASection() {
       <div className="cta-content">
 
         <span className="cta-badge">
-          Devis gratuit — réponse sous 24h
+          Devis gratuit, sans paiement en ligne
         </span>
 
         <h2>
@@ -19,28 +20,11 @@ function CTASection() {
         </h2>
 
         <p>
-          Choisissez votre véhicule et laissez-nous préparer
-          votre prochaine escapade en Tunisie.
+          Choisissez votre véhicule, indiquez vos dates et envoyez
+          votre demande : nous revenons vers vous pour la confirmer.
         </p>
 
-        <div className="cta-stats">
-
-          <div>
-            <strong>5000+</strong>
-            <span>clients satisfaits</span>
-          </div>
-
-          <div>
-            <strong>50+</strong>
-            <span>véhicules premium</span>
-          </div>
-
-          <div>
-            <strong>24/7</strong>
-            <span>assistance</span>
-          </div>
-
-        </div>
+        <Link className="cta-primary" to="/devis">Demander un devis</Link>
 
       </div>
 

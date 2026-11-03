@@ -74,6 +74,18 @@ public class QuoteRequestService {
         if (!dto.getEmail().trim().matches("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$")) {
             throw new IllegalArgumentException("L’adresse email est invalide.");
         }
+        if (tooLong(dto.getNom(), 100) || tooLong(dto.getPrenom(), 100) || tooLong(dto.getEmail(), 254)) {
+            throw new IllegalArgumentException("Le nom, le prénom ou l’email est trop long.");
+        }
+        if (!dto.getTelephone().trim().matches("^[0-9+()./\\s-]{6,25}$")) {
+            throw new IllegalArgumentException("Le numéro de téléphone est invalide.");
+        }
+        if (tooLong(dto.getLieuPriseEnCharge(), 200) || tooLong(dto.getLieuRestitution(), 200)) {
+            throw new IllegalArgumentException("Un des lieux saisis est trop long.");
+        }
+        if (tooLong(dto.getMessage(), 2000)) {
+            throw new IllegalArgumentException("Le message ne doit pas dépasser 2000 caractères.");
+        }
         if (isBlank(dto.getLieuPriseEnCharge()) || isBlank(dto.getLieuRestitution())) {
             throw new IllegalArgumentException("Les lieux de prise en charge et de restitution sont obligatoires.");
         }
@@ -101,13 +113,16 @@ public class QuoteRequestService {
                 dto.getDateFin()
         );
 
+        if (nombreJours > 365) {
+            throw new IllegalArgumentException("La durée de location ne peut pas dépasser 365 jours.");
+        }
         if (nombreJours <= 0) {
             throw new IllegalArgumentException(
                     "La date de fin doit être après la date de début"
             );
         }
 
-        vehicleAvailabilityService.ensureAvailable(
+        vehicle = vehicleAvailabilityService.resolveAvailableUnit(
                 vehicle, dto.getDateDebut(), dto.getDateFin());
 
         // Le tarif peut être absent pour une demande de devis : le prix sera
@@ -185,5 +200,9 @@ public class QuoteRequestService {
 
     private boolean isBlank(String value) {
         return value == null || value.isBlank();
+    }
+
+    private boolean tooLong(String value, int max) {
+        return value != null && value.length() > max;
     }
 }

@@ -11,14 +11,13 @@ function AboutCTA() {
         </span>
 
         <h2>
-          Prêt à partir sur les routes
+          Une question avant
           <br />
-          de Tunisie ?
+          de réserver ?
         </h2>
 
         <p>
-          Découvrez nos véhicules et préparez votre
-          prochaine aventure avec GMT.
+          Consultez nos véhicules ou contactez-nous.
         </p>
 
         <div className="about-cta-buttons">

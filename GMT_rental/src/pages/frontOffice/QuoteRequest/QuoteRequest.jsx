@@ -2,6 +2,7 @@
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { resolveVehicleImage } from "../../../utils/vehicleImage";
 import { quoteRequestApi, vehicleApi } from "../../../services/api";
+import { groupByModel } from "../../../utils/fleet";
 import "./QuoteRequest.css";
 
 function createIdempotencyKey() {
@@ -104,9 +105,7 @@ function QuoteRequest() {
         const vehicleList = Array.isArray(payload)
           ? payload
           : payload.vehicules || payload.vehicles || payload.data || [];
-        const data = Array.isArray(vehicleList) ? vehicleList : [];
-
-        console.log("Véhicules reçus :", data);
+        const data = Array.isArray(vehicleList) ? groupByModel(vehicleList) : [];
 
         setVehicles(data);
         setVehiclesError(
@@ -322,7 +321,7 @@ function QuoteRequest() {
         </button>
         <header className="quote-intro">
           <h1>Demande de<br />devis</h1>
-          <p>Remplissez ce formulaire en 3 étapes. Notre équipe vous répondra sous 24h.</p>
+          <p>Remplissez ce formulaire en 3 étapes. Notre équipe vous recontactera pour confirmer votre demande.</p>
         </header>
 
         <div className="quote-progress">

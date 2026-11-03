@@ -21,6 +21,9 @@ public class JwtUtils {
             @Value("${gmt.jwt.secret}") String secret,
             @Value("${gmt.jwt.expiration:86400000}") long expirationMs
     ) {
+        if (secret == null || secret.getBytes(StandardCharsets.UTF_8).length < 32) {
+            throw new IllegalStateException("GMT_JWT_SECRET est absent ou trop court : définissez une clé aléatoire d'au moins 32 caractères.");
+        }
         this.signingKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
         this.expirationMs = expirationMs;
     }

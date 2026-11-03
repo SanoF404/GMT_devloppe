@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 public record VehicleRequest(
         String marque,
         String modele,
+        String immatriculation,
         Integer annee,
         Integer places,
         String transmission,

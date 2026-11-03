@@ -32,6 +32,9 @@ public interface VehicleRepository extends JpaRepository<Vehicle, Long> {
     List<Vehicle> findPublicVehiclesByStatusAndCategory(
             @Param("status") String status, @Param("categoryId") Long categoryId);
 
+    List<Vehicle> findByMarqueIgnoreCaseAndModeleIgnoreCaseAndStatutIgnoreCaseOrderByIdAsc(
+            String marque, String modele, String statut);
+
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT vehicle FROM Vehicle vehicle WHERE vehicle.id = :id")
     Optional<Vehicle> findByIdForUpdate(@Param("id") Long id);

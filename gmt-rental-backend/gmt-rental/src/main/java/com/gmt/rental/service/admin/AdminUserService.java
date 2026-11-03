@@ -152,6 +152,10 @@ public class AdminUserService {
         if (creating && (data.getMotDePasse() == null || data.getMotDePasse().isBlank())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Le mot de passe est obligatoire pour créer un compte.");
         }
+        String rawPassword = data.getMotDePasse();
+        if (rawPassword != null && !rawPassword.isBlank() && (rawPassword.length() < 8 || rawPassword.length() > 100)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Le mot de passe doit contenir entre 8 et 100 caractères.");
+        }
         if (creating && data.getRole() == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Le rôle doit être USER ou ADMIN.");
         }

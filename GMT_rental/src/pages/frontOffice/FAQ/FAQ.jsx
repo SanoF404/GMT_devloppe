@@ -8,80 +8,74 @@ import {
 } from "lucide-react";
 
 import { Link } from "react-router-dom";
+import site from "../../../config/site";
 import "./FAQ.css";
 
+const { conditions } = site;
+
+// Les réponses sur les conditions de location viennent de config/site.js :
+// une question dont la réponse est vide n'est pas affichée.
 const faqData = [
   {
-    id: 1,
     categorie: "RÉSERVATION & DEVIS",
     question: "Comment demander un devis ?",
     reponse:
-      "Rendez-vous sur la page « Demander un devis », remplissez le formulaire en 3 étapes (dates, véhicule, contact) et envoyez votre demande. Notre équipe vous répond sous 24h avec une proposition personnalisée.",
+      "Rendez-vous sur la page « Demander un devis », remplissez le formulaire en 3 étapes (dates, véhicule, contact) et envoyez votre demande. Notre équipe vous recontacte avec une proposition.",
   },
   {
-    id: 2,
     categorie: "RÉSERVATION & DEVIS",
     question: "Y a-t-il un paiement en ligne ?",
-    reponse:
-      "Non. Le règlement s'effectue sur place au moment de la prise en charge du véhicule, par carte bancaire ou en espèces.",
+    reponse: "Non, la demande de devis ne comporte aucun paiement en ligne.",
   },
   {
-    id: 3,
-    categorie: "RÉSERVATION & DEVIS",
-    question: "Puis-je annuler ma demande ?",
-    reponse:
-      "Oui, vous pouvez annuler votre demande sans frais tant qu'aucun contrat de location n'a été signé.",
-  },
-  {
-    id: 4,
     categorie: "RÉSERVATION & DEVIS",
     question: "Les prix sont-ils en DT et en € ?",
     reponse:
-      "Oui. Le catalogue permet de consulter les tarifs en dinars tunisiens et en euros grâce au sélecteur de devise.",
+      "Oui. Le catalogue permet de consulter les tarifs en dinars tunisiens et en euros grâce au sélecteur de devise. Les tarifs en euros sont indicatifs.",
   },
   {
-    id: 5,
+    categorie: "RÉSERVATION & DEVIS",
+    question: "Comment régler la location ?",
+    reponse: conditions.paiement,
+  },
+  {
     categorie: "LOCATION & CONDITIONS",
     question: "Quels documents sont nécessaires pour louer un véhicule ?",
-    reponse:
-      "Vous devez présenter un permis de conduire valide depuis au moins 2 ans, une pièce d'identité ou un passeport, ainsi qu'une carte bancaire au nom du conducteur.",
+    reponse: conditions.documents,
   },
   {
-    id: 6,
     categorie: "LOCATION & CONDITIONS",
     question: "Quel est l'âge minimum ?",
-    reponse:
-      "L'âge minimum est de 21 ans avec un permis obtenu depuis au moins 2 ans. Une majoration peut être appliquée pour les conducteurs de moins de 25 ans.",
+    reponse: conditions.ageMinimum,
   },
   {
-    id: 7,
     categorie: "LOCATION & CONDITIONS",
     question: "L'assurance est-elle incluse ?",
-    reponse:
-      "Oui, une assurance tous risques est incluse. Des options complémentaires peuvent être proposées, notamment pour un conducteur additionnel ou une franchise réduite.",
+    reponse: conditions.assurance,
   },
   {
-    id: 8,
+    categorie: "LOCATION & CONDITIONS",
+    question: "Faut-il verser une caution ?",
+    reponse: conditions.caution,
+  },
+  {
     categorie: "LOCATION & CONDITIONS",
     question: "Y a-t-il une limitation de kilométrage ?",
-    reponse:
-      "Le kilométrage illimité peut être proposé sur demande. Dans les autres cas, un forfait journalier standard s'applique.",
+    reponse: conditions.kilometrage,
   },
   {
-    id: 9,
     categorie: "LOCATION & CONDITIONS",
-    question: "Puis-je récupérer le véhicule à l'aéroport ?",
-    reponse:
-      "Oui. La prise en charge peut être organisée à l'aéroport Tunis-Carthage, dans un hôtel ou à toute autre adresse en Tunisie.",
+    question: "Puis-je me faire livrer ou récupérer le véhicule ailleurs qu'à l'agence ?",
+    reponse: conditions.livraison,
   },
   {
-    id: 10,
     categorie: "LOCATION & CONDITIONS",
     question: "Que faire en cas de panne ou d'accident ?",
-    reponse:
-      "Une assistance est disponible 24h/24 et 7j/7. Le numéro d'assistance vous est communiqué avec votre contrat de location.",
+    reponse: conditions.panneAccident,
   },
-];
+]
+  .filter((faq) => faq.reponse)
+  .map((faq, index) => ({ ...faq, id: index + 1 }));
 
 function FAQ() {
   const [openId, setOpenId] = useState(1);

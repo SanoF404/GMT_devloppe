@@ -3,7 +3,7 @@ import { ArrowLeft } from "lucide-react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { adminApiService } from "../../services/admin/api";
 
-const empty = { marque: "", modele: "", annee: "", places: "", transmission: "", carburant: "", prixParJour: "", description: "", image: "", statut: "ACTIF", categorieId: "" };
+const empty = { marque: "", modele: "", immatriculation: "", annee: "", places: "", transmission: "", carburant: "", prixParJour: "", description: "", image: "", statut: "ACTIF", categorieId: "" };
 
 export default function AdminVehicleForm() {
   const { id } = useParams();
@@ -35,7 +35,7 @@ export default function AdminVehicleForm() {
     <form className="admin-card" onSubmit={submit}>
       {error && <p className="admin-error">{error}</p>}
       <div className="admin-form">
-        {[["marque","Marque"],["modele","Modèle"],["annee","Année"],["places","Nombre de places"],["prixParJour","Prix par jour (DT)"],["image","URL de l’image"]].map(([name,label]) => <label className="admin-field" key={name}><span>{label}</span><input name={name} type={name === "annee" || name === "places" || name === "prixParJour" ? "number" : "text"} step={name === "prixParJour" ? "0.01" : undefined} required={name === "marque" || name === "modele" || name === "places" || name === "prixParJour"} value={form[name] ?? ""} onChange={update} /></label>)}
+        {[["marque","Marque"],["modele","Modèle"],["immatriculation","Immatriculation"],["annee","Année"],["places","Nombre de places"],["prixParJour","Prix par jour (DT)"],["image","Image (nom de fichier ou URL)"]].map(([name,label]) => <label className="admin-field" key={name}><span>{label}</span><input name={name} maxLength={name === "immatriculation" ? 30 : undefined} type={name === "annee" || name === "places" || name === "prixParJour" ? "number" : "text"} step={name === "prixParJour" ? "0.01" : undefined} required={name === "marque" || name === "modele" || name === "places" || name === "prixParJour"} value={form[name] ?? ""} onChange={update} /></label>)}
         <label className="admin-field"><span>Transmission</span><select name="transmission" value={form.transmission || ""} onChange={update}><option value="">Sélectionner</option><option>MANUELLE</option><option>AUTOMATIQUE</option></select></label>
         <label className="admin-field"><span>Carburant</span><select name="carburant" value={form.carburant || ""} onChange={update}><option value="">Sélectionner</option>{["ESSENCE","DIESEL","HYBRIDE","ELECTRIQUE"].map((x) => <option key={x}>{x}</option>)}</select></label>
         <label className="admin-field"><span>Catégorie</span><select name="categorieId" required value={form.categorieId || ""} onChange={update}><option value="">Sélectionner une catégorie</option>{categories.map((c) => <option key={c.id} value={c.id}>{c.nom}</option>)}</select></label>

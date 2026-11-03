@@ -2,14 +2,10 @@ import { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
 import CarCard from "../CarCard/CarCard";
 import useCurrency from "../../../context/useCurrency";
-import { API_BASE_URL, vehicleApi } from "../../../services/api";
+import { vehicleApi } from "../../../services/api";
+import { groupByModel, titleCase } from "../../../utils/fleet";
 import { resolveVehicleImage } from "../../../utils/vehicleImage";
 import "./VehiclesSection.css";
-
-function vehicleImage(vehicle) {
-  if (vehicle.image?.startsWith("/uploads/")) return `${API_BASE_URL.replace(/\/api\/?$/, "")}${vehicle.image}`;
-  return resolveVehicleImage(vehicle.image);
-}
 
 function VehiclesSection() {
   const { currency, setCurrency } = useCurrency();
@@ -20,7 +16,7 @@ function VehiclesSection() {
   useEffect(() => {
     let active = true;
     vehicleApi.getAll()
-      .then(({ data }) => { if (active) setVehicles(Array.isArray(data) ? data.slice(0, 4) : []); })
+      .then(({ data }) => { if (active) setVehicles(Array.isArray(data) ? groupByModel(data).slice(0, 6) : []); })
       .catch(() => { if (active) setError("Impossible de charger les véhicules."); })
       .finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
@@ -31,8 +27,8 @@ function VehiclesSection() {
       <div className="vehicles-header">
         <div className="vehicles-title">
           <span className="section-label">NOTRE FLOTTE</span>
-          <h2>Véhicules populaires</h2>
-          <p>Une sélection de nos modèles les plus demandés pour explorer la Tunisie en toute liberté.</p>
+          <h2>Nos véhicules</h2>
+          <p>Les modèles disponibles à la location, avec leur tarif par jour.</p>
         </div>
         <div className="vehicles-actions">
           <div className="currency-toggle">
@@ -48,14 +44,15 @@ function VehiclesSection() {
           {vehicles.map((vehicle) => <CarCard
             key={vehicle.id}
             id={vehicle.id}
-            image={vehicleImage(vehicle)}
+            image={resolveVehicleImage(vehicle.image)}
             brand={vehicle.marque}
             name={vehicle.modele}
             category={vehicle.categorie?.nom || "Véhicule"}
             seats={`${vehicle.places ?? "—"} places`}
-            transmission={vehicle.transmission || "—"}
-            fuel={vehicle.carburant || "—"}
+            transmission={titleCase(vehicle.transmission)}
+            fuel={titleCase(vehicle.carburant)}
             priceDT={vehicle.prixParJour}
+            count={vehicle.count}
           />)}
         </div>
       ) : <p>Aucun véhicule disponible pour le moment.</p>}

@@ -115,7 +115,9 @@ public class VerificationService {
 
         User user = userOptional.get();
         if (Boolean.TRUE.equals(user.getEmailVerified())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cette adresse e-mail est déjà vérifiée.");
+            // Même réponse qu'un compte inconnu : on ne révèle pas l'état du compte.
+            log.info("Demande de code OTP ignorée : adresse déjà vérifiée (id={})", user.getId());
+            return;
         }
 
         createAndSendOtp(email, VerificationCodeType.EMAIL_VERIFICATION);
@@ -140,7 +142,9 @@ public class VerificationService {
 
         User user = userOptional.get();
         if (Boolean.TRUE.equals(user.getEmailVerified())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cette adresse e-mail est déjà vérifiée.");
+            // Même réponse qu'un compte inconnu : on ne révèle pas l'état du compte.
+            log.info("Demande de code OTP ignorée : adresse déjà vérifiée (id={})", user.getId());
+            return;
         }
 
         createAndSendOtp(email, VerificationCodeType.EMAIL_VERIFICATION);
@@ -162,10 +166,10 @@ public class VerificationService {
         String code = rawCode.trim();
 
         User user = userRepository.findByEmailIgnoreCase(email)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Compte introuvable pour cette adresse e-mail."));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Code incorrect ou expiré. Demandez un nouveau code."));
 
         if (Boolean.TRUE.equals(user.getEmailVerified())) {
-            return new VerificationResponse(true, "Votre adresse e-mail est déjà vérifiée.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Code incorrect ou expiré. Demandez un nouveau code.");
         }
 
         VerificationCode activeCode = verificationCodeRepository

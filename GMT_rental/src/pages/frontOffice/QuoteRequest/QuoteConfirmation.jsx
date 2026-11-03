@@ -12,7 +12,7 @@ function QuoteConfirmation() {
       <h1>Demande<br />reçue !</h1>
       <p className="confirmation-message">
         Merci {formData.prenom || ""} {formData.nom || ""}. Votre demande de devis a bien été enregistrée.
-        <br />Notre équipe vous contactera sous 24h.
+        <br />Notre équipe vous recontactera pour la confirmer.
       </p>
       <section className="confirmation-summary">
         <h2>Récapitulatif</h2>

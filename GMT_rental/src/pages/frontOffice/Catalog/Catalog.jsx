@@ -1,9 +1,10 @@
 ﻿import { useEffect, useMemo, useState } from "react";
 import { NavLink } from "react-router-dom";
-import { CarFront, RotateCw } from "lucide-react";
+import { CarFront, Fuel, RotateCw, Settings2, Users } from "lucide-react";
 import useCurrency from "../../../context/useCurrency";
-import { API_BASE_URL, categoryApi, vehicleApi } from "../../../services/api";
+import { categoryApi, vehicleApi } from "../../../services/api";
 import { resolveVehicleImage } from "../../../utils/vehicleImage";
+import { groupByModel } from "../../../utils/fleet";
 
 import "./Catalog.css";
 
@@ -26,7 +27,7 @@ function Catalog() {
         if (!active) return;
         const vehicles = Array.isArray(data) ? data : Array.isArray(data?.content) ? data.content : null;
         if (!vehicles) throw new Error("Réponse invalide de l’API véhicules.");
-        setApiVehicles(vehicles);
+        setApiVehicles(groupByModel(vehicles));
         setFailedImages(new Set());
       })
       .catch(() => {
@@ -64,7 +65,7 @@ function Catalog() {
     transmission: vehicle.transmission ? vehicle.transmission[0] + vehicle.transmission.slice(1).toLowerCase() : "—",
     fuel: vehicle.carburant === "ELECTRIQUE" ? "Électrique" : vehicle.carburant ? vehicle.carburant[0] + vehicle.carburant.slice(1).toLowerCase() : "—",
     priceDT: Number(vehicle.prixParJour),
-    image: vehicle.image?.startsWith("/uploads/") ? `${API_BASE_URL.replace(/\/api\/?$/, "")}${vehicle.image}` : resolveVehicleImage(vehicle.image),
+    image: resolveVehicleImage(vehicle.image),
     availability: "Actif",
   })), [apiVehicles]);
   /* =========================
@@ -192,7 +193,7 @@ function Catalog() {
           </h1>
 
           <p>
-            Découvrez l'ensemble de nos véhicules premium
+            Découvrez l'ensemble de nos véhicules
             disponibles à la location en Tunisie.
           </p>
 
@@ -436,15 +437,15 @@ function Catalog() {
                   <div className="card-specs">
 
                     <span>
-                      ♙ {vehicle.seats}
+                      <Users size={14} aria-hidden="true" /> {vehicle.seats}
                     </span>
 
                     <span>
-                      ⚙ {vehicle.transmission}
+                      <Settings2 size={14} aria-hidden="true" /> {vehicle.transmission}
                     </span>
 
                     <span>
-                      ⛽ {vehicle.fuel}
+                      <Fuel size={14} aria-hidden="true" /> {vehicle.fuel}
                     </span>
 
                   </div>

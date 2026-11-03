@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
 import { vehicleApi } from "../../../services/api";
+import { groupByModel } from "../../../utils/fleet";
 import "./VehicleSelector.css";
 
 function VehicleSelector() {
@@ -21,7 +22,7 @@ function VehicleSelector() {
       <div className="selector-title">CHOISISSEZ VOTRE VÉHICULE</div>
       <select value={vehicleId} onChange={(event) => setVehicleId(event.target.value)}>
         <option value="">Sélectionnez un modèle</option>
-        {vehicles.map((vehicle) => <option key={vehicle.id} value={vehicle.id}>
+        {groupByModel(vehicles).map((vehicle) => <option key={vehicle.id} value={vehicle.id}>
           {vehicle.marque} {vehicle.modele} — {vehicle.categorie?.nom || "Véhicule"}
         </option>)}
       </select>

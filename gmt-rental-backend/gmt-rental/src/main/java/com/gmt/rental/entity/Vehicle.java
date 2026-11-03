@@ -17,6 +17,9 @@ public class Vehicle {
     @Column(nullable = false)
     private String modele;
 
+    @Column(length = 30)
+    private String immatriculation;
+
     private Integer annee;
 
     @Column(name = "nombre_places")
@@ -65,6 +68,14 @@ public class Vehicle {
 
     public void setModele(String modele) {
         this.modele = modele;
+    }
+
+    public String getImmatriculation() {
+        return immatriculation;
+    }
+
+    public void setImmatriculation(String immatriculation) {
+        this.immatriculation = immatriculation;
     }
 
     public Integer getAnnee() {

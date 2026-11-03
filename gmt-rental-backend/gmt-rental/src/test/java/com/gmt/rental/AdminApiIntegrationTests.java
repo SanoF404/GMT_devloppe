@@ -272,7 +272,7 @@ class AdminApiIntegrationTests {
                 .andExpect(jsonPath("$.available").value(false))
                 .andExpect(jsonPath("$.conflictingPeriods[0].dateDebut").value(start.toString()))
                 .andExpect(jsonPath("$.message").value(org.hamcrest.Matchers.containsString(
-                        start.format(displayDate) + " to " + end.format(displayDate))));
+                        start.format(displayDate) + " au " + end.format(displayDate))));
 
         savedQuote.setStatut("ANNULEE");
         quoteRequestRepository.save(savedQuote);
