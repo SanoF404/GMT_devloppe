@@ -25,8 +25,9 @@ Légende : [ ] non testé · [x] validé · [!] échoué (noter le fichier et le
 ## 3. Configuration de production (contrôle, sans déploiement)
 
 - [ ] Sans `GMT_JWT_SECRET` (ou < 32 octets) : le backend refuse de démarrer.
-- [ ] Sans `GMT_ADMIN_PASSWORD` (ou < 8 caractères) : le démarrage échoue si l'e-mail admin est défini.
-- [ ] Sans `RESEND_API_KEY` : avertissement dans les logs, les demandes de devis restent enregistrées.
+- [ ] Sans `GMT_ADMIN_PASSWORD` : aucun compte admin créé, **sans erreur** (comportement actuel à corriger) ; vérifier que personne ne se croit protégé.
+- [ ] `GMT_ADMIN_PASSWORD` de moins de 8 caractères : le démarrage échoue.
+- [ ] Sans `RESEND_API_KEY` : avertissement dans les logs ; vérifier que la demande de devis est tout de même enregistrée (non testé).
 - [ ] `VITE_API_URL` défini dans le build : le site n'appelle plus `localhost`.
 - [ ] Aucun fichier `.env` ni secret dans `git status` ni dans `dist/`.
 
