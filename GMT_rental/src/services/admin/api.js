@@ -6,8 +6,6 @@ adminApi.interceptors.response.use(
     if (error.response?.status === 401
       && !error.config?.preservePageOnUnauthorized
       && window.location.pathname !== "/admin/login") {
-      localStorage.removeItem("adminToken");
-      localStorage.removeItem("token");
       localStorage.removeItem("user");
       window.location.assign("/admin/login");
     }
@@ -52,7 +50,7 @@ export const adminApiService = {
   createUserRental: (userId, data) => adminApi.post(`/admin/users/${userId}/rentals`, data, { preservePageOnUnauthorized: true }),
   settings: () => adminApi.get("/admin/settings"),
   saveSetting: (data) => adminApi.post("/admin/settings", data),
-  profile: () => adminApi.get("/admin/account/profile"),
+  profile: (options) => adminApi.get("/admin/account/profile", options),
   updateProfile: (data) => adminApi.put("/admin/account/profile", data),
   sendProfileEmailCode: (email) => adminApi.post("/admin/account/email/send-code", { email }),
   verifyProfileEmail: (email, code) => adminApi.post("/admin/account/email/verify", { email, code }),

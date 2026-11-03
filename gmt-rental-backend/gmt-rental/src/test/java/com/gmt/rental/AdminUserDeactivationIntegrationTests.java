@@ -23,14 +23,13 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.UUID;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -208,13 +207,11 @@ class AdminUserDeactivationIntegrationTests {
     }
 
     private String login(User user) throws Exception {
-        String response = mockMvc.perform(post("/api/auth/login").contentType(MediaType.APPLICATION_JSON)
+        MvcResult response = mockMvc.perform(post("/api/auth/login").contentType(MediaType.APPLICATION_JSON)
                         .content("{\"email\":\"%s\",\"motDePasse\":\"test-password\"}".formatted(user.getEmail())))
                 .andExpect(status().isOk())
-                .andReturn().getResponse().getContentAsString();
-        Matcher matcher = Pattern.compile("\"token\"\\s*:\\s*\"([^\"]+)\"").matcher(response);
-        assertTrue(matcher.find(), "La réponse de connexion doit contenir le JWT");
-        return "Bearer " + matcher.group(1);
+                .andReturn();
+        return "Bearer " + SessionCookies.sessionToken(response);
     }
 
     private boolean isAdmin(User user) {

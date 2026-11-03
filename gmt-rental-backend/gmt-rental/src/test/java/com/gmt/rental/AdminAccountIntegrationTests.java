@@ -10,9 +10,8 @@ import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import java.util.UUID;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -51,13 +50,11 @@ class AdminAccountIntegrationTests {
         mockMvc.perform(get("/api/admin/account/profile"))
                 .andExpect(status().isUnauthorized());
 
-        String login = mockMvc.perform(post("/api/auth/login").contentType(MediaType.APPLICATION_JSON)
+        MvcResult login = mockMvc.perform(post("/api/auth/login").contentType(MediaType.APPLICATION_JSON)
                         .content("{\"email\":\"" + email + "\",\"motDePasse\":\"current-password\"}"))
                 .andExpect(status().isOk())
-                .andReturn().getResponse().getContentAsString();
-        Matcher matcher = Pattern.compile("\"token\"\\s*:\\s*\"([^\"]+)\"").matcher(login);
-        assertTrue(matcher.find(), "La réponse doit contenir un jeton d’accès.");
-        String auth = "Bearer " + matcher.group(1);
+                .andReturn();
+        String auth = "Bearer " + SessionCookies.sessionToken(login);
 
         mockMvc.perform(get("/api/admin/account/profile").header("Authorization", auth))
                 .andExpect(status().isOk()).andExpect(jsonPath("$.email").value(email))

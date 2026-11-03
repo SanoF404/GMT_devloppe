@@ -20,6 +20,7 @@ import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
@@ -27,8 +28,6 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.UUID;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.options;
@@ -87,14 +86,13 @@ class AdminApiIntegrationTests {
         String loginBody = """
                 {"email":"%s","motDePasse":"admin-test-password"}
                 """.formatted(adminEmail);
-        String loginResponse = mockMvc.perform(post("/api/auth/login")
+        MvcResult loginResponse = mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(loginBody))
                 .andExpect(status().isOk())
-                .andReturn().getResponse().getContentAsString();
-        Matcher matcher = Pattern.compile("\"token\"\\s*:\\s*\"([^\"]+)\"").matcher(loginResponse);
+                .andReturn();
         if (!matcher.find()) throw new AssertionError("La réponse de connexion ne contient pas de jeton JWT");
-        String auth = "Bearer " + matcher.group(1);
+        String auth = "Bearer " + SessionCookies.sessionToken(loginResponse);
 
         String userEmail = "managed-user-" + UUID.randomUUID() + "@gmt.test";
         String createUserBody = """
@@ -346,12 +344,11 @@ class AdminApiIntegrationTests {
         String loginBody = """
                 {"email":"%s","motDePasse":"test-password"}
                 """.formatted(adminEmail);
-        String loginResponse = mockMvc.perform(post("/api/auth/login").contentType(MediaType.APPLICATION_JSON).content(loginBody))
-                .andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
-        Matcher matcher = Pattern.compile("\"token\"\\s*:\\s*\"([^\"]+)\"").matcher(loginResponse);
+        MvcResult loginResponse = mockMvc.perform(post("/api/auth/login").contentType(MediaType.APPLICATION_JSON).content(loginBody))
+                .andExpect(status().isOk()).andReturn();
         if (!matcher.find()) throw new AssertionError("La réponse de connexion ne contient pas de jeton JWT");
 
-        String token = matcher.group(1);
+        String token = SessionCookies.sessionToken(loginResponse);
         Long acceptedQuoteId = savedQuote.getId();
         QuoteRequest secondOverlappingQuote = quoteRequestRepository.findAll().stream()
                 .filter(candidate -> !candidate.getId().equals(acceptedQuoteId))
@@ -483,16 +480,15 @@ class AdminApiIntegrationTests {
         vehicle.setCategorie(category);
         vehicle = vehicleRepository.save(vehicle);
 
-        String loginResponse = mockMvc.perform(post("/api/auth/login")
+        MvcResult loginResponse = mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {"email":"%s","motDePasse":"rental-test-password"}
                                 """.formatted(adminEmail)))
                 .andExpect(status().isOk())
-                .andReturn().getResponse().getContentAsString();
-        Matcher matcher = Pattern.compile("\"token\"\\s*:\\s*\"([^\"]+)\"").matcher(loginResponse);
+                .andReturn();
         if (!matcher.find()) throw new AssertionError("La réponse de connexion ne contient pas de jeton JWT");
-        String auth = "Bearer " + matcher.group(1);
+        String auth = "Bearer " + SessionCookies.sessionToken(loginResponse);
 
         String historyUrl = "/api/admin/users/{userId}/rentals";
         mockMvc.perform(get(historyUrl, customer.getId()))

@@ -3,7 +3,9 @@ package com.gmt.rental.controller.admin;
 import com.gmt.rental.dto.admin.AccountDtos.*;
 import com.gmt.rental.service.admin.AdminAccountService;
 import com.gmt.rental.service.admin.AdminActivityService;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.HttpStatus;
@@ -20,17 +22,25 @@ public class AdminAccountController {
     private final AdminActivityService activities;
     private final EmailService emails;
     private final ConcurrentMap<String, Long> testAttempts = new ConcurrentHashMap<>();
-    public AdminAccountController(AdminAccountService accounts, AdminActivityService activities, EmailService emails) { this.accounts = accounts; this.activities = activities; this.emails = emails; }
+    private final com.gmt.rental.security.AuthCookies cookies;
+    public AdminAccountController(AdminAccountService accounts, AdminActivityService activities, EmailService emails, com.gmt.rental.security.AuthCookies cookies) { this.accounts = accounts; this.activities = activities; this.emails = emails; this.cookies = cookies; }
 
     @GetMapping("/profile") public ProfileResponse profile(Authentication auth) { return accounts.profile(auth.getName()); }
     @PutMapping("/profile") public ProfileResponse updateProfile(Authentication auth, @RequestBody ProfileUpdate body) { return accounts.updateProfile(auth.getName(), body); }
     @PostMapping("/email/send-code") @ResponseStatus(HttpStatus.NO_CONTENT)
     public void sendEmailCode(Authentication auth, @RequestBody EmailChange body) { accounts.sendEmailCode(auth.getName(), body); }
-    @PostMapping("/email/verify") public EmailChangeResult verifyEmail(Authentication auth, @RequestBody EmailCodeVerification body) { return accounts.confirmEmailChange(auth.getName(), body); }
+    @PostMapping("/email/verify")
+    public ResponseEntity<EmailChangeResult> verifyEmail(Authentication auth, @RequestBody EmailCodeVerification body) {
+        EmailChangeResult result = accounts.confirmEmailChange(auth.getName(), body);
+        return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookies.issue(result.token())).body(result);
+    }
     @PutMapping("/password") @ResponseStatus(HttpStatus.NO_CONTENT)
     public void changePassword(Authentication auth, @RequestBody PasswordChange body) { accounts.changePassword(auth.getName(), body); }
-    @PostMapping("/logout") @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void logout(Authentication auth) { activities.record(auth.getName(), "", "LOGOUT", "security", "Déconnexion administrateur", true); }
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(Authentication auth) {
+        activities.record(auth.getName(), "", "LOGOUT", "security", "Déconnexion administrateur", true);
+        return ResponseEntity.noContent().header(HttpHeaders.SET_COOKIE, cookies.clear()).build();
+    }
     @GetMapping("/preferences") public PreferencesResponse preferences(Authentication auth) { return accounts.getPreferences(auth.getName()); }
     @PutMapping("/preferences") public PreferencesResponse updatePreferences(Authentication auth, @RequestBody PreferencesUpdate body) { return accounts.updatePreferences(auth.getName(), body); }
 

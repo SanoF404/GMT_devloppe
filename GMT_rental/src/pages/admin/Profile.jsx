@@ -23,9 +23,9 @@ export default function AdminProfile() {
       .finally(() => setLoading(false));
   }, []);
 
-  const syncUser = (nextProfile, token) => {
+  const syncUser = (nextProfile) => {
     const cached = JSON.parse(localStorage.getItem("user") || "{}");
-    updateAuthenticatedUser({ ...cached, id: nextProfile.id, nom: nextProfile.nom, prenom: nextProfile.prenom, email: nextProfile.email, role: nextProfile.role }, token);
+    updateAuthenticatedUser({ ...cached, id: nextProfile.id, nom: nextProfile.nom, prenom: nextProfile.prenom, email: nextProfile.email, role: nextProfile.role });
   };
 
   const saveProfile = async (event) => {
@@ -51,7 +51,7 @@ export default function AdminProfile() {
     event.preventDefault(); setSaving(true); setMessage(null);
     try {
       const { data } = await adminApiService.verifyProfileEmail(email, code);
-      setProfile(data.profile); setEmail(data.profile.email); setEmailStep(false); setCode(""); syncUser(data.profile, data.token);
+      setProfile(data.profile); setEmail(data.profile.email); setEmailStep(false); setCode(""); syncUser(data.profile);
       setMessage({ type: "success", text: "Adresse e-mail vérifiée et mise à jour." });
     } catch (error) { setMessage({ type: "error", text: error.response?.data?.message || "Le code n’a pas pu être vérifié." }); }
     finally { setSaving(false); }

@@ -4,12 +4,13 @@ import axios from "axios";
 export const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8081/api";
 
 export const publicApi = axios.create({ baseURL: API_BASE_URL });
-export const authenticatedApi = axios.create({ baseURL: API_BASE_URL });
 
-authenticatedApi.interceptors.request.use((config) => {
-  const token = localStorage.getItem("adminToken");
-  if (token) config.headers.Authorization = `Bearer ${token}`;
-  return config;
+// La session administrateur est un cookie httpOnly : le navigateur doit l'envoyer (withCredentials).
+// L'en-tête X-Requested-With est exigé par le serveur pour les requêtes authentifiées par cookie (protection CSRF).
+export const authenticatedApi = axios.create({
+  baseURL: API_BASE_URL,
+  withCredentials: true,
+  headers: { "X-Requested-With": "XMLHttpRequest" },
 });
 
 export const vehicleApi = {
@@ -31,13 +32,3 @@ export const verificationApi = {
   verify: (email, code) => publicApi.post("/auth/verification/verify", { email, code }),
   resend: (email) => publicApi.post("/auth/verification/resend", { email }),
 };
-
-// Keep the existing default export for the account context's legacy register call.
-const API = axios.create({ baseURL: API_BASE_URL });
-API.interceptors.request.use((config) => {
-  const token = localStorage.getItem("token");
-  if (token) config.headers.Authorization = `Bearer ${token}`;
-  return config;
-});
-
-export default API;

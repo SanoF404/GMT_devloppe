@@ -10,7 +10,7 @@ public final class AccountDtos {
     public record ProfileUpdate(String nom, String prenom) {}
     public record EmailChange(String email) {}
     public record EmailCodeVerification(String email, String code) {}
-    public record EmailChangeResult(ProfileResponse profile, String token) {}
+    public record EmailChangeResult(ProfileResponse profile, @com.fasterxml.jackson.annotation.JsonIgnore String token) {}
     public record PasswordChange(String currentPassword, String newPassword, String confirmation) {}
     public record PreferencesResponse(String theme, boolean quoteNotifications, String notificationEmail) {}
     public record PreferencesUpdate(String theme, boolean quoteNotifications, String notificationEmail) {}
