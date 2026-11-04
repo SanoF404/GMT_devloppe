@@ -17,8 +17,11 @@ import org.springframework.stereotype.Component;
  *   <li>Sans e-mail : aucune action.</li>
  *   <li>E-mail sans mot de passe, ou mot de passe de moins de 8 caractères : le démarrage échoue.</li>
  *   <li>Compte absent : créé en ADMIN avec le mot de passe fourni (haché).</li>
- *   <li>Compte existant : promu en ADMIN et e-mail marqué vérifié. Le mot de passe n'est pas écrasé,
- *       et un compte désactivé reste désactivé (avertissement dans les logs).</li>
+ *   <li>Compte existant déjà ADMIN : e-mail marqué vérifié ; mot de passe non modifié ; un compte
+ *       désactivé reste désactivé (avertissement).</li>
+ *   <li>Compte existant NON admin : promu ADMIN <strong>uniquement si son mot de passe correspond à
+ *       GMT_ADMIN_PASSWORD</strong>. Sinon le démarrage échoue : un visiteur ayant créé ce compte avec
+ *       l'e-mail de l'administrateur ne doit jamais devenir administrateur.</li>
  * </ul>
  */
 @Component
@@ -70,9 +73,13 @@ public class AdminBootstrapInitializer implements ApplicationRunner {
     private void repairExistingAdmin(User account) {
         boolean changed = false;
         if (!isAdminRole(account.getRole())) {
+            if (!passwordEncoder.matches(password, account.getMotDePasse())) {
+                throw new IllegalStateException("Un compte existe déjà avec l'e-mail GMT_ADMIN_EMAIL, avec un autre mot de passe : "
+                        + "il n'est pas promu administrateur. Corrigez ce compte manuellement avant de redémarrer.");
+            }
             account.setRole("ADMIN");
             changed = true;
-            log.warn("Le compte configuré par GMT_ADMIN_EMAIL existait avec un autre rôle : il a été promu ADMIN.");
+            log.warn("Le compte configuré par GMT_ADMIN_EMAIL a été promu ADMIN (mot de passe vérifié).");
         }
         if (!Boolean.TRUE.equals(account.getEmailVerified())) {
             account.setEmailVerified(true);

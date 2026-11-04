@@ -27,7 +27,8 @@ Légende : [ ] non testé · [x] validé · [!] échoué (noter le fichier et le
 - [ ] Sans `GMT_JWT_SECRET` (ou < 32 octets) : le backend refuse de démarrer.
 - [ ] `GMT_ADMIN_EMAIL` défini sans `GMT_ADMIN_PASSWORD` : le démarrage échoue avec un message explicite.
 - [ ] `GMT_ADMIN_PASSWORD` de moins de 8 caractères : le démarrage échoue.
-- [ ] Compte existant avec `GMT_ADMIN_EMAIL` : promu ADMIN ; mot de passe inchangé ; compte désactivé reste désactivé.
+- [ ] Compte existant avec `GMT_ADMIN_EMAIL` et **même** mot de passe que `GMT_ADMIN_PASSWORD` : promu ADMIN ; compte désactivé reste désactivé.
+- [ ] Compte existant avec `GMT_ADMIN_EMAIL` et **autre** mot de passe : le démarrage échoue (sécurité : aucune promotion).
 - [ ] Sans `DATABASE_URL`, `DATABASE_USERNAME` ou `DATABASE_PASSWORD` (hors profil local) : le démarrage échoue.
 - [ ] Sans `RESEND_API_KEY` : avertissement dans les logs ; vérifier que la demande de devis est tout de même enregistrée (non testé).
 - [ ] `VITE_API_URL` défini dans le build : le site n'appelle plus `localhost`.

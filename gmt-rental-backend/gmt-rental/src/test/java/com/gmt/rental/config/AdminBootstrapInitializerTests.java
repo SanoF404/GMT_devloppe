@@ -57,8 +57,9 @@ class AdminBootstrapInitializerTests {
     }
 
     @Test
-    void promotesExistingAccountButKeepsPasswordAndDeactivation() throws Exception {
+    void promotesExistingAccountOnlyWhenConfiguredPasswordMatches() throws Exception {
         UserRepository users = mock(UserRepository.class);
+        PasswordEncoder encoder = mock(PasswordEncoder.class);
         User customer = new User();
         customer.setEmail("admin@example.invalid");
         customer.setRole("USER");
@@ -66,12 +67,31 @@ class AdminBootstrapInitializerTests {
         customer.setEmailVerified(false);
         customer.setMotDePasse("existing-hash");
         when(users.findByEmail("admin@example.invalid")).thenReturn(Optional.of(customer));
-        initializer(users, mock(PasswordEncoder.class), "admin@example.invalid", "long-enough-password").run(args);
+        when(encoder.matches("long-enough-password", "existing-hash")).thenReturn(true);
+        initializer(users, encoder, "admin@example.invalid", "long-enough-password").run(args);
         assertEquals("ADMIN", customer.getRole());
         assertTrue(customer.getEmailVerified());
         assertFalse(customer.getActif(), "Un compte désactivé ne doit pas être réactivé au démarrage.");
         assertEquals("existing-hash", customer.getMotDePasse());
         verify(users).save(customer);
+    }
+
+    @Test
+    void refusesToPromoteExistingAccountWithDifferentPassword() {
+        UserRepository users = mock(UserRepository.class);
+        PasswordEncoder encoder = mock(PasswordEncoder.class);
+        User attackerAccount = new User();
+        attackerAccount.setEmail("admin@example.invalid");
+        attackerAccount.setRole("USER");
+        attackerAccount.setActif(true);
+        attackerAccount.setEmailVerified(false);
+        attackerAccount.setMotDePasse("attacker-hash");
+        when(users.findByEmail("admin@example.invalid")).thenReturn(Optional.of(attackerAccount));
+        when(encoder.matches("long-enough-password", "attacker-hash")).thenReturn(false);
+        AdminBootstrapInitializer init = initializer(users, encoder, "admin@example.invalid", "long-enough-password");
+        assertThrows(IllegalStateException.class, () -> init.run(args));
+        assertEquals("USER", attackerAccount.getRole(), "Un compte au mot de passe différent ne doit jamais devenir ADMIN.");
+        verify(users, never()).save(any());
     }
 
     @Test
